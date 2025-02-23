@@ -1,0 +1,20 @@
+TODO
+
+
+* Input is URL/URLs for rightmove search. URL/URLs are passed as positional
+  arguments to main binary. Same way as for curl or wget tools.
+* Binary can run forever or just once (--once option).
+* There is an --interval option to control fetch frequency.
+* After each iteration binary will dump "seen" set as a JSON.
+* Option to specify a path to seen list file.
+
+
+GENERAL ALGORITHM
+
+* Fetch URL.
+* Parse flats into slice of structs.
+* Remove already seen flats.
+* Send new flats to telegram. One message per each flat?
+* Add new flats to seen list.
+* Remove out of retention flats from seen list to prevent it from growing
+  indefinitely.
