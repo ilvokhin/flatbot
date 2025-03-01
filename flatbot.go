@@ -1,15 +1,10 @@
 package main
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"strings"
-
-	"golang.org/x/net/html"
 )
 
 func main() {
@@ -22,7 +17,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	sent, err := readSent("sent/sent.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	flats = removeAlreadySent(flats, sent)
 	fmt.Println(flats)
+	writeSent(flats, "/tmp/sent.json")
 }
 
 func fetch(url string) ([]byte, error) {
@@ -40,72 +41,4 @@ func fetch(url string) ([]byte, error) {
 		return make([]byte, 0), err
 	}
 	return body, nil
-}
-
-type flat struct {
-	URL   string
-	Price string
-}
-
-func parse(body []byte) ([]flat, error) {
-	doc, err := html.Parse(bytes.NewReader(body))
-	if err != nil {
-		return make([]flat, 0), err
-	}
-	flats := make([]flat, 0)
-	for _, n := range findNodes(doc) {
-		flat, err := parseNode(n)
-		if err != nil {
-			continue
-		}
-		flats = append(flats, flat)
-	}
-	return flats, nil
-}
-
-func findNodes(root *html.Node) []*html.Node {
-	flats := make([]*html.Node, 0)
-	for n := range root.Descendants() {
-		if n.Type != html.ElementNode {
-			continue
-		}
-		if n.Data != "a" {
-			continue
-		}
-		attr := matchAttr(n, "data-testid")
-		if attr == nil || attr.Val != "property-price" {
-			continue
-		}
-		flats = append(flats, n)
-	}
-	return flats
-}
-
-func matchAttr(n *html.Node, key string) *html.Attribute {
-	for _, attr := range n.Attr {
-		if attr.Key == key {
-			return &attr
-		}
-	}
-	return nil
-}
-
-func parseNode(root *html.Node) (flat, error) {
-	url := matchAttr(root, "href")
-	if url == nil {
-		return flat{}, errors.New("Couldn't find URL")
-	}
-	f := flat{URL: makeURL(url.Val), Price: ""}
-	for n := range root.Descendants() {
-		if price, found := strings.CutSuffix(n.Data, " pcm"); found {
-			f.Price = price
-			return f, nil
-		}
-	}
-	return flat{}, errors.New("Couldn't find price")
-}
-
-func makeURL(path string) string {
-	prettySuffix, _ := strings.CutSuffix(path, "/?channel=RES_LET")
-	return fmt.Sprintf("https://rightmove.co.uk%v", prettySuffix)
 }

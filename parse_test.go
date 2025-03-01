@@ -14,22 +14,22 @@ func TestParse(t *testing.T) {
 	}
 	want := []flat{
 		flat{
-			URL:   "https://rightmove.co.uk/properties/156522206#",
+			ID:    156522206,
 			Price: "£2,500",
 		},
 		flat{
-			URL:   "https://rightmove.co.uk/properties/158462822#",
+			ID:    158462822,
 			Price: "£3,000",
 		},
 		flat{
-			URL:   "https://rightmove.co.uk/properties/157948184#",
+			ID:    157948184,
 			Price: "£2,400",
 		}}
 	got, err := parse(data)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(want, got) {
-		t.Errorf("Parse failed: got: %v, want: %v", want, got)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Parse failed: got: %v, want: %v", got, want)
 	}
 }
