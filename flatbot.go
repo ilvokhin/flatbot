@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -22,6 +23,18 @@ func main() {
 		log.Fatal(err)
 	}
 	flats = removeAlreadySent(flats, sent)
+	m := messenger{
+		Token:  os.Getenv("FLATBOT_TELEGRAM_BOT_API_TOKEN"),
+		ChatID: os.Getenv("FLATBOT_TELEGRAM_CHANNEL_ID"),
+	}
+	for _, f := range flats {
+		err = m.Send(f)
+		if err != nil {
+			// TODO: what to do with it?
+			log.Print(err)
+		}
+		sent = append(sent, f)
+	}
 	fmt.Println(flats)
 	writeSent(flats, "/tmp/sent.json")
 }
