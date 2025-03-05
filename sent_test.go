@@ -63,6 +63,35 @@ func TestRemoveAlreadySent(t *testing.T) {
 
 }
 
+func TestRemoveDelisted(t *testing.T) {
+	flats := []flat{
+		flat{
+			ID:    156522206,
+			Price: "£2,500",
+		},
+		flat{
+			ID:    158462822,
+			Price: "£3,000",
+		}}
+	sent := []flat{
+		flat{
+			ID:    156522206,
+			Price: "£2,500",
+		},
+		flat{
+			ID:    157948184,
+			Price: "£2,400",
+		},
+	}
+
+	got := removeDelisted(sent, flats)
+	want := []flat{flat{ID: 156522206, Price: "£2,500"}}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("removeDelisted failed: got: %v, want: %v",
+			got, want)
+	}
+}
+
 func TestWriteSentNew(t *testing.T) {
 	tmp := t.TempDir()
 	filename := filepath.Join(tmp, "sent.json")

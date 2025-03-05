@@ -43,6 +43,21 @@ func removeAlreadySent(fetched []flat, sent []flat) []flat {
 	return recent
 }
 
+func removeDelisted(sent []flat, allFlats []flat) []flat {
+	if !slices.IsSortedFunc(allFlats, compareID) {
+		panic("allFlats expected to be sorted")
+	}
+	recent := make([]flat, 0)
+	for _, f := range sent {
+		_, found := slices.BinarySearchFunc(allFlats, f, compareID)
+		if !found {
+			continue
+		}
+		recent = append(recent, f)
+	}
+	return recent
+}
+
 func writeSent(sent []flat, filename string) error {
 	jsonData, err := json.Marshal(sent)
 	if err != nil {

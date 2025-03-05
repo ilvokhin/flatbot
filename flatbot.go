@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	flats, err := parse(body)
+	allFlats, err := parse(body)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -22,21 +23,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	flats = removeAlreadySent(flats, sent)
+	newFlats := removeAlreadySent(allFlats, sent)
 	m := messenger{
 		Token:  os.Getenv("FLATBOT_TELEGRAM_BOT_API_TOKEN"),
 		ChatID: os.Getenv("FLATBOT_TELEGRAM_CHANNEL_ID"),
 	}
-	for _, f := range flats {
-		err = m.Send(f)
-		if err != nil {
-			// TODO: what to do with it?
-			log.Print(err)
+	for _, f := range newFlats {
+		if false {
+			err = m.Send(f)
+			if err != nil {
+				// TODO: what to do with it?
+				log.Print(err)
+			}
 		}
 		sent = append(sent, f)
 	}
-	fmt.Println(flats)
-	writeSent(flats, "/tmp/sent.json")
+	// Remove flats from sent that are no longer in the search response to
+	// prevent indefinite grow.
+	slices.SortFunc(allFlats, compareID)
+	sent = removeDelisted(sent, allFlats)
+	writeSent(sent, "/tmp/sent.json")
 }
 
 func fetch(url string) ([]byte, error) {
