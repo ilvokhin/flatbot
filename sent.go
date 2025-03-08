@@ -28,34 +28,29 @@ func readSent(filename string) ([]flat, error) {
 	return sent, nil
 }
 
-func removeAlreadySent(fetched []flat, sent []flat) []flat {
-	if !slices.IsSortedFunc(sent, compareID) {
-		panic("Sent expected to be sorted")
+func removeFlats(whenFound bool, from, superset []flat) []flat {
+	if !slices.IsSortedFunc(superset, compareID) {
+		slices.SortFunc(superset, compareID)
 	}
-	recent := make([]flat, 0)
-	for _, f := range fetched {
-		_, found := slices.BinarySearchFunc(sent, f, compareID)
-		if found {
+	out := make([]flat, 0)
+	for _, f := range from {
+		_, found := slices.BinarySearchFunc(superset, f, compareID)
+		if found == whenFound {
 			continue
 		}
-		recent = append(recent, f)
+		out = append(out, f)
 	}
-	return recent
+	return out
+}
+
+func removeAlreadySent(fetched []flat, sent []flat) []flat {
+	whenFound := true
+	return removeFlats(whenFound, fetched, sent)
 }
 
 func removeDelisted(sent []flat, allFlats []flat) []flat {
-	if !slices.IsSortedFunc(allFlats, compareID) {
-		panic("allFlats expected to be sorted")
-	}
-	recent := make([]flat, 0)
-	for _, f := range sent {
-		_, found := slices.BinarySearchFunc(allFlats, f, compareID)
-		if !found {
-			continue
-		}
-		recent = append(recent, f)
-	}
-	return recent
+	whenFound := true
+	return removeFlats(!whenFound, sent, allFlats)
 }
 
 func writeSent(sent []flat, filename string) error {
