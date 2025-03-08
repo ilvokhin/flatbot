@@ -2,13 +2,14 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 )
 
 func TestParse(t *testing.T) {
-	filename := "htmls/2025-02-19-isle-of-dogs.html"
-	data, err := os.ReadFile(filename)
+	filename := "2025-02-19-isle-of-dogs.html"
+	data, err := os.ReadFile(filepath.Join("testdata", filename))
 	if err != nil {
 		t.Errorf("Could not read %v", filename)
 	}
