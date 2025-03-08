@@ -43,12 +43,12 @@ func removeFlats(whenFound bool, from, superset []flat) []flat {
 	return out
 }
 
-func removeAlreadySent(fetched []flat, sent []flat) []flat {
+func removeAlreadySent(fetched, sent []flat) []flat {
 	whenFound := true
 	return removeFlats(whenFound, fetched, sent)
 }
 
-func removeDelisted(sent []flat, allFlats []flat) []flat {
+func removeDelisted(sent, allFlats []flat) []flat {
 	whenFound := true
 	return removeFlats(!whenFound, sent, allFlats)
 }
