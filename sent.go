@@ -54,6 +54,9 @@ func removeDelisted(sent []flat, allFlats []flat) []flat {
 }
 
 func writeSent(sent []flat, filename string) error {
+	if !slices.IsSortedFunc(sent, compareID) {
+		slices.SortFunc(sent, compareID)
+	}
 	jsonData, err := json.Marshal(sent)
 	if err != nil {
 		return err
