@@ -76,27 +76,29 @@ func loopOnce() error {
 	if err != nil {
 		return err
 	}
+	fetched := make([]flat, 0)
 	for _, url := range flag.Args() {
-		sent, err = doOneURL(url, sent)
+		sent, fetched, err = doOneURL(url, sent, fetched)
 		if err != nil {
 			log.Print(err)
 			continue
 		}
 	}
-	// TODO: trim sent file here?
+	sent = removeDelisted(sent, fetched)
 	return writeSent(sent, *state)
 }
 
-func doOneURL(url string, sent []flat) ([]flat, error) {
+func doOneURL(url string, sent, fetched []flat) ([]flat, []flat, error) {
 	body, err := fetch(url)
 	if err != nil {
-		return sent, err
+		return sent, fetched, err
 	}
-	fetched, err := parse(body)
+	parsed, err := parse(body)
 	if err != nil {
-		return sent, err
+		return sent, fetched, err
 	}
-	newFlats := removeAlreadySent(fetched, sent)
+	fetched = append(fetched, parsed...)
+	newFlats := removeAlreadySent(parsed, sent)
 	m := messenger{
 		Token:  *apiToken,
 		ChatID: *chatID,
@@ -113,7 +115,7 @@ func doOneURL(url string, sent []flat) ([]flat, error) {
 			f.Price, f.URL())
 		sent = append(sent, f)
 	}
-	return sent, nil
+	return sent, fetched, nil
 }
 
 func fetch(url string) ([]byte, error) {
