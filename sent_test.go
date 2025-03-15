@@ -22,7 +22,7 @@ func TestReadSentNew(t *testing.T) {
 func TestReadSent(t *testing.T) {
 	tmp := t.TempDir()
 	filename := filepath.Join(tmp, "sent.json")
-	data := []byte(`[{"ID":156522206,"Price":"£2,500"}]`)
+	data := []byte(`[{"id":156522206,"price":"£2,500"}]`)
 	os.WriteFile(filename, data, 0644)
 
 	got, err := readSent(filename)
@@ -105,7 +105,7 @@ func TestWriteSentNew(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []byte(`[{"ID":156522206,"Price":"£2,500"}]`)
+	want := []byte(`[{"id":156522206,"price":"£2,500"}]`)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("writeSent failed: got: %v, want: %v", got, want)
 	}
@@ -128,7 +128,7 @@ func TestWriteSentOverride(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := []byte(`[{"ID":156522206,"Price":"£2,500"}]`)
+	want := []byte(`[{"id":156522206,"price":"£2,500"}]`)
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("writeSent failed: got: %v, want: %v", got, want)
 	}

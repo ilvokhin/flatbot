@@ -6,8 +6,8 @@ import (
 )
 
 type flat struct {
-	ID    int
-	Price string
+	ID    int    `json:"id"`
+	Price string `json:"price"`
 }
 
 func (f *flat) URL() string {
