@@ -39,6 +39,10 @@ func usage() {
 func main() {
 	flag.Usage = usage
 	flag.Parse()
+	if flag.NArg() == 0 {
+		usage()
+		os.Exit(1)
+	}
 	if !*dryRun {
 		if len(*apiToken) == 0 {
 			fmt.Fprintf(os.Stderr,
@@ -52,10 +56,6 @@ func main() {
 					"but no chat id was provided\n")
 			os.Exit(1)
 		}
-	}
-	if flag.NArg() == 0 {
-		usage()
-		os.Exit(1)
 	}
 
 	for {
