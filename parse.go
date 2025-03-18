@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -23,6 +24,10 @@ func parse(body []byte) ([]flat, error) {
 		}
 		flats = append(flats, flat)
 	}
+	slices.SortFunc(flats, compareID)
+	flats = slices.CompactFunc(flats, func(a, b flat) bool {
+		return compareID(a, b) == 0
+	})
 	return flats, nil
 }
 
