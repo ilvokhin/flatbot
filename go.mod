@@ -1,4 +1,4 @@
-module ilvokhin.com/flatbot
+module git.ilvokhin.com/flatbot.git
 
 go 1.24.0
 
