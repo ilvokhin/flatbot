@@ -66,3 +66,35 @@ func TestParseDulicates(t *testing.T) {
 		t.Errorf("Parse failed: got: %v, want: %v", got, want)
 	}
 }
+
+func TestParseBuy(t *testing.T) {
+	filename := "2025-03-31-buy.html"
+	data, err := os.ReadFile(filepath.Join("testdata", filename))
+	if err != nil {
+		t.Fatalf("Could not read %v", filename)
+	}
+	want := []flat{
+		flat{
+			ID:    158566946,
+			Price: "£900,000",
+		},
+		flat{
+			ID:    160016081,
+			Price: "£500,000",
+		},
+		flat{
+			ID:    160019057,
+			Price: "£575,000",
+		},
+		flat{
+			ID:    160020590,
+			Price: "£400,000",
+		}}
+	got, err := parse(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Parse failed: got: %v, want: %v", got, want)
+	}
+}

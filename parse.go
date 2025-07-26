@@ -40,9 +40,18 @@ func findNodes(root *html.Node) []*html.Node {
 		if n.Data != "a" {
 			continue
 		}
+		// Try to match attribute for let.
 		attr := matchAttr(n, "data-testid")
 		if attr == nil || attr.Val != "property-price" {
-			continue
+			// If unsuccessful, try to match attribute for buy.
+			attr = matchAttr(n, "data-test")
+			if attr == nil || attr.Val != "property-header" {
+				continue
+			}
+			href := matchAttr(n, "href")
+			if href == nil || href.Val == "" {
+				continue
+			}
 		}
 		flats = append(flats, n)
 	}
@@ -73,17 +82,24 @@ func parseNode(root *html.Node) (flat, error) {
 			f.Price = price
 			return f, nil
 		}
+		if strings.HasPrefix(n.Data, "£") {
+			f.Price = strings.TrimSpace(n.Data)
+			return f, nil
+		}
 	}
 	return flat{}, errors.New("Couldn't find price")
 }
 
 func parseID(path string) (int, error) {
 	s, _ := strings.CutPrefix(path, "/properties/")
-	maybeID, _ := strings.CutSuffix(s, "#/?channel=RES_LET")
-	ID, err := strconv.Atoi(maybeID)
-	if err != nil {
-		err := fmt.Errorf("Couldn't extract ID from %q", path)
-		return -1, err
+	for _, channel := range []string{"LET", "BUY"} {
+		suffix := fmt.Sprintf("#/?channel=RES_%v", channel)
+		maybeID, _ := strings.CutSuffix(s, suffix)
+		ID, err := strconv.Atoi(maybeID)
+		if err == nil {
+			return ID, nil
+		}
 	}
-	return ID, err
+	err := fmt.Errorf("Couldn't extract ID from %q", path)
+	return -1, err
 }
