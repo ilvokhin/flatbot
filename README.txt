@@ -10,11 +10,6 @@ $ ./flatbot -dry-run -once <URL>
 $ ./flatbot <URL>
 
 
-DECRYPT SECRETS
-
-$ . <(gpg --decrypt --quiet misc/telegram-secrets.sh.asc)
-
-
 TEST
 
 $ go test
